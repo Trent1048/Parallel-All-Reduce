@@ -4,7 +4,19 @@
 
 #include <mpi.h>
 #include <stdio.h>
-#include <sys/time.h>
+#include <stdlib.h>
+#include <time.h>
+
+int localSum(int count) {
+    time_t t;
+    srand((unsigned) time(&t));
+
+    int sum = 0;
+    for (int i = 0; i < count; i++) {
+        sum += rand() % 100;
+    }
+    return sum;
+}
 
 int main(int argc,char *argv[]) {
     int rank,p;
@@ -16,7 +28,7 @@ int main(int argc,char *argv[]) {
     printf("my rank = %d\n",rank);
     printf("Rank = %d: number of processes = %d\n",rank,p);
 
-    // TODO add code in here
+    printf("Local sum = %d\n",localSum(1));
 
     MPI_Finalize();
 }
