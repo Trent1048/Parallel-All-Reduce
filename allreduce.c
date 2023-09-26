@@ -24,6 +24,8 @@ void allReduceNaive(int rank, int p, int n) {
     const int srcRank = rank - 1;
     const int destRank = rank + 1;
 
+    // sum pass
+
     if (srcRank >= 0) { // not the start
         MPI_Status status;
         MPI_Recv(receiveBuf, 1, MPI_INTEGER, srcRank, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
@@ -33,6 +35,19 @@ void allReduceNaive(int rank, int p, int n) {
     if (destRank < p) { // not the end
         sendBuf[0] = sum;
         MPI_Send(sendBuf, 1, MPI_INTEGER, destRank, 0, MPI_COMM_WORLD);
+    }
+
+    // distribute pass
+
+    if (destRank < p) { // not the end
+        MPI_Status status;
+        MPI_Recv(receiveBuf, 1, MPI_INTEGER, destRank, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        int recievedSum = receiveBuf[0];
+        sum = recievedSum;
+    }
+    if (srcRank >= 0) { // not the start
+        sendBuf[0] = sum;
+        MPI_Send(sendBuf, 1, MPI_INTEGER, srcRank, 0, MPI_COMM_WORLD);
     }
 
     printf("Rank = %d: local sum = %d\n",rank,localSum);
