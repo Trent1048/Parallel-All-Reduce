@@ -111,6 +111,9 @@ struct AllReduceResult allReduceMPI(int rank, int p, int n) {
 
 int main(int argc,char *argv[]) {
     int rank,p;
+    
+    struct timeval t1, t2;
+    int localTime, localTimeSum = 0, reduceTime, totalTime;
 
     MPI_Init(&argc,&argv);
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -133,39 +136,62 @@ int main(int argc,char *argv[]) {
             n *= 2;
             continue;
         }
+		gettimeofday(&t1, NULL);	
         struct AllReduceResult naiveResult = allReduceNaive(rank, p, n);
-        printf("Rank = %d: n = %d local sum = %d global sum = %d\n",
-            rank, n, naiveResult.localSum, naiveResult.globalSum);
+		gettimeofday(&t2, NULL);	
+        localTime = t2.tv_usec - t1.tv_usec;
+        localTimeSum += localTime;
+        printf("-Naive- Rank = %d: n = %d local sum = %d global sum = %d time = %d\n",
+            rank, n, naiveResult.localSum, naiveResult.globalSum, localTime);
         n *= 2;
     }
+
+    printf("---- End Naive Approach ----\n"); 
+    printf("Naive Total Time: %d\n\n", localTimeSum); 
 
     printf("-- Hypercubic approach --\n");
 
+    localTimeSum = 0;
     n = 1;
     while (n <= maxN) {
         if (n <= p || n % p != 0) {
             n *= 2;
             continue;
         }
+		gettimeofday(&t1, NULL);	
         struct AllReduceResult hypercubicResult = allReduceHypercubic(rank, p, n);
-        printf("Rank = %d: n = %d local sum = %d global sum = %d\n",
-            rank, n, hypercubicResult.localSum, hypercubicResult.globalSum);
+		gettimeofday(&t2, NULL);	
+        localTime = t2.tv_usec - t1.tv_usec;
+        localTimeSum += localTime;
+        printf("-Hyper- Rank = %d: n = %d local sum = %d global sum = %d time = %d\n",
+            rank, n, hypercubicResult.localSum, hypercubicResult.globalSum, localTime);
         n *= 2;
     }
+
+    printf("---- End Hypercubic Approach ----\n"); 
+    printf("Hypercubic Total Time: %d\n\n", localTimeSum); 
 
     printf("-- MPI approach --\n");
 
+    localTimeSum = 0;
     n = 1;
     while (n <= maxN) {
         if (n <= p || n % p != 0) {
             n *= 2;
             continue;
         }
+		gettimeofday(&t1, NULL);	
         struct AllReduceResult mpiResult = allReduceMPI(rank, p, n);
-        printf("Rank = %d: n = %d local sum = %d global sum = %d\n",
-            rank, n, mpiResult.localSum, mpiResult.globalSum);
+		gettimeofday(&t2, NULL);	
+        localTime = t2.tv_usec - t1.tv_usec;
+        localTimeSum += localTime;
+        printf("-MPI- Rank = %d: n = %d local sum = %d global sum = %d time = %d\n",
+            rank, n, mpiResult.localSum, mpiResult.globalSum, localTime);
         n *= 2;
     }
+
+    printf("---- End MPI Approach ----\n"); 
+    printf("MPI Total Time: %d\n\n", localTimeSum); 
 
     MPI_Finalize();
 }
