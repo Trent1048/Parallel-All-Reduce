@@ -66,9 +66,27 @@ struct AllReduceResult allReduceHypercubic(int rank, int p, int n) {
     
     // TODO implement
 
+    int partnerRank;
+    int receiveBuf[100], sendBuf[100];
+
     struct AllReduceResult result;
     result.localSum = 0;
     result.globalSum = 0;
+
+    result.localSum = computeLocalSum(n / p);
+
+    for (int t = 0; t < log2(p); t++) {
+        partnerRank = rank ^ t;
+        MPI_Status status;
+        MPI_Sendrecv(sendBuf, 1, MPI_INTEGER, partnerRank, 0,
+            receiveBuf, 1, MPI_INTEGER, partnerRank, MPI_ANY_TAG,
+            MPI_COMM_WORLD, &status);    
+        result.localSum += receiveBuf[0];
+        result.localSum += sendBuf[0];
+    }
+    
+    result.globalSum = result.localSum;
+    // printf("Final hypercubic rank %d     sum = %d", rank, result.globalSum);
     return result;
 }
 
@@ -114,7 +132,7 @@ int main(int argc,char *argv[]) {
 
     // TODO uncomment this block when the algorithms are implemented and add timing functionality
 
-    /*
+    
     printf("-- Hypercubic approach --\n");
 
     n = 1;
@@ -123,9 +141,9 @@ int main(int argc,char *argv[]) {
             n *= 2;
             continue;
         }
-        struct AllReduceResult naiveResult = allReduceHypercubic(rank, p, n);
+        struct AllReduceResult hypercubicResult = allReduceHypercubic(rank, p, n);
         printf("Rank = %d: n = %d local sum = %d global sum = %d\n",
-            rank,n,naiveResult.localSum,naiveResult.globalSum);
+            rank, n, hypercubicResult.localSum, hypercubicResult.globalSum);
         n *= 2;
     }
 
@@ -142,7 +160,6 @@ int main(int argc,char *argv[]) {
             rank,n,naiveResult.localSum,naiveResult.globalSum);
         n *= 2;
     }
-    */
 
     MPI_Finalize();
 }
