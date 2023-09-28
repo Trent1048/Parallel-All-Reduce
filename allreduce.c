@@ -92,7 +92,7 @@ struct AllReduceResult allReduceHypercubic(int rank, int p, int n)
     const int localSum = computeLocalSum(n / p);
 	gettimeofday(&stopTime, NULL);	
     
-    elapsedTime = (stopTime.tv_sec - starTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
+    elapsedTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
     
     if (rank == 0){
         printf("Hypercubic localSum elapsedTime: %d", elapsedTime);
@@ -114,7 +114,7 @@ struct AllReduceResult allReduceHypercubic(int rank, int p, int n)
     }
 
 	gettimeofday(&startTime, NULL);	
-    elapsedTime = (stopTime.tv_sec - starTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
+    elapsedTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
 
     if (rank == 0){
         printf("Hypercubic Reduce elapsedTime: %d", elapsedTime);
@@ -190,19 +190,10 @@ int main(int argc,char *argv[]) {
         n *= 2;
     }
 
-<<<<<<< HEAD
     if (rank == 0) {
         printf("---- End Naive Approach ----\n"); 
         printf("-- Hypercubic approach --\n");
     }
-=======
-    printf("---- End Naive Approach ----\n"); 
-    if (rank == 0){
-        printf("Naive Total Time: %d\n\n", localTimeSum); 
-    }
-
-    printf("-- Hypercubic approach --\n");
->>>>>>> 0f32582a83e8a5fdb85667185c61fdcd30d45e48
 
     n = 1;
     while (n <= maxN) {
@@ -216,21 +207,10 @@ int main(int argc,char *argv[]) {
         n *= 2;
     }
 
-<<<<<<< HEAD
     if (rank == 0) {
         printf("---- End Hypercubic Approach ----\n"); 
         printf("-- MPI approach --\n");
     }
-=======
-    printf("---- End Hypercubic Approach ----\n"); 
-    
-    if (rank == 0)
-    {
-        printf("Hypercubic Total Time: %d\n\n", localTimeSum); 
-    }
-
-    printf("-- MPI approach --\n");
->>>>>>> 0f32582a83e8a5fdb85667185c61fdcd30d45e48
 
     n = 1;
     while (n <= maxN) {
