@@ -32,9 +32,6 @@ struct AllReduceResult allReduceNaive(int rank, int p, int n) {
     int sum = localSum;
 	gettimeofday(&stopTime, NULL);
     int localSumTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
-    if (rank == 0) {
-        printf("-Naive- n = %d local sum time = %d ",n,localSumTime);
-    }
 
     gettimeofday(&startTime, NULL);	
     const int srcRank = rank - 1;
@@ -69,7 +66,7 @@ struct AllReduceResult allReduceNaive(int rank, int p, int n) {
     gettimeofday(&stopTime, NULL);
     int parallelTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
     if (rank == 0) {
-        printf("total time = %d\n",parallelTime + localSumTime);
+        printf("-Naive- n = %d parallel time = %d total time = %d\n",n,parallelTime,parallelTime + localSumTime);
     }
 
     struct AllReduceResult result;
@@ -81,7 +78,7 @@ struct AllReduceResult allReduceNaive(int rank, int p, int n) {
 struct AllReduceResult allReduceHypercubic(int rank, int p, int n) 
 {
     struct timeval startTime, stopTime;
-    int partnerRank, sum, elapsedTime;
+    int partnerRank;
     int receiveBuf[100], sendBuf[100];
 
     struct AllReduceResult result;
@@ -92,32 +89,29 @@ struct AllReduceResult allReduceHypercubic(int rank, int p, int n)
     const int localSum = computeLocalSum(n / p);
 	gettimeofday(&stopTime, NULL);	
     
-    elapsedTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
-    
-    if (rank == 0){
-        printf("Hypercubic localSum elapsedTime: %d\n", elapsedTime);
-    }
-    
+    int localSumTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
+        
 	gettimeofday(&startTime, NULL);	
-    sum = localSum;
+    int sum = localSum;
 
+    int k = 1;
     for (int t = 0; t < log2(p); t++) {
         sendBuf[0] = sum;
-        partnerRank = rank ^ t;
+        partnerRank = rank ^ k;
+        k = k << 1;
         MPI_Status status;
         MPI_Sendrecv(sendBuf, 1, MPI_INTEGER, partnerRank, 0,
             receiveBuf, 1, MPI_INTEGER, partnerRank, MPI_ANY_TAG,
             MPI_COMM_WORLD, &status);    
         int receivedSum = receiveBuf[0];
-        // result.localSum += sendBuf[0] + receiveBuf[0];
-        sum = receivedSum;
+        sum += receivedSum;
     }
 
-	gettimeofday(&startTime, NULL);	
-    elapsedTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
+	gettimeofday(&stopTime, NULL);	
+    int parallelTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
 
     if (rank == 0){
-        printf("Hypercubic Reduce elapsedTime: %d\n", elapsedTime);
+        printf("-Hyper- n = %d parallel time = %d total time = %d\n",n,parallelTime,parallelTime + localSumTime);
     }
     
     result.localSum = localSum;
@@ -136,9 +130,7 @@ struct AllReduceResult allReduceMPI(int rank, int p, int n) {
     const int localSum = computeLocalSum(n / p);
 	gettimeofday(&stopTime, NULL);	
     
-    if (rank == 0){
-        printf("MPI localSum elapsedTime: %d\n", elapsedTime);
-    }
+    int localSumTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
 
     sum = localSum;
     
@@ -149,8 +141,10 @@ struct AllReduceResult allReduceMPI(int rank, int p, int n) {
     sum = receivedSum;
 	gettimeofday(&stopTime, NULL);	
 
+    int parallelTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
+
     if (rank == 0){
-        printf("MPI Reduce elapsedTime: %d\n", elapsedTime);
+        printf("-MPI- n = %d parallel time = %d total time = %d\n",n,parallelTime,parallelTime + localSumTime);
     }
 
     result.localSum = localSum;
