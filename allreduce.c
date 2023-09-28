@@ -95,7 +95,7 @@ struct AllReduceResult allReduceHypercubic(int rank, int p, int n)
     elapsedTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
     
     if (rank == 0){
-        printf("Hypercubic localSum elapsedTime: %d", elapsedTime);
+        printf("Hypercubic localSum elapsedTime: %d\n", elapsedTime);
     }
     
 	gettimeofday(&startTime, NULL);	
@@ -117,7 +117,7 @@ struct AllReduceResult allReduceHypercubic(int rank, int p, int n)
     elapsedTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
 
     if (rank == 0){
-        printf("Hypercubic Reduce elapsedTime: %d", elapsedTime);
+        printf("Hypercubic Reduce elapsedTime: %d\n", elapsedTime);
     }
     
     result.localSum = localSum;
@@ -137,7 +137,7 @@ struct AllReduceResult allReduceMPI(int rank, int p, int n) {
 	gettimeofday(&stopTime, NULL);	
     
     if (rank == 0){
-        printf("MPI localSum elapsedTime: %d", elapsedTime);
+        printf("MPI localSum elapsedTime: %d\n", elapsedTime);
     }
 
     sum = localSum;
@@ -150,7 +150,7 @@ struct AllReduceResult allReduceMPI(int rank, int p, int n) {
 	gettimeofday(&stopTime, NULL);	
 
     if (rank == 0){
-        printf("MPI Reduce elapsedTime: %d", elapsedTime);
+        printf("MPI Reduce elapsedTime: %d\n", elapsedTime);
     }
 
     result.localSum = localSum;
