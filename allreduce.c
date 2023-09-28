@@ -69,7 +69,7 @@ struct AllReduceResult allReduceNaive(int rank, int p, int n) {
     gettimeofday(&stopTime, NULL);
     int parallelTime = (stopTime.tv_sec - startTime.tv_sec) * 1000000 + stopTime.tv_usec - startTime.tv_usec;
     if (rank == 0) {
-        printf("total time = %d\n",n,parallelTime + localSumTime);
+        printf("total time = %d\n",parallelTime + localSumTime);
     }
 
     struct AllReduceResult result;
